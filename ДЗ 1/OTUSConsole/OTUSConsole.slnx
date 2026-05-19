@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="../OTUSConsoleTests/OTUSConsoleTests.csproj" Id="18251013-0ed7-4c44-9a1a-0e9b49690711" />
+  <Project Path="OTUSConsole.csproj" />
+</Solution>

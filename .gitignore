@@ -1,226 +1,226 @@
-# Следующая команда работает для загрузки при использовании Git для Windows:
+# The following command works for downloading when using Git for Windows:
 # curl -LOf http://gist.githubusercontent.com/kmorcinek/2710267/raw/.gitignore
 #
-# Загрузите этот файл с помощью PowerShell v3 в Windows, используя следующую команду:
+# Download this file using PowerShell v3 under Windows with the following comand:
 # Invoke-WebRequest https://gist.githubusercontent.com/kmorcinek/2710267/raw/ -OutFile .gitignore
 #
-# или wget:
+# or wget:
 # wget --no-check-certificate http://gist.githubusercontent.com/kmorcinek/2710267/raw/.gitignore
 
-# Файлы, специфичные для пользователя
-* .suo
-* .пользователь
-* .sln.docstates
+# User-specific files
+*.suo
+*.user
+*.sln.docstates
 
-# Результаты сборки
-[ Dd ] ebug /
-[ Rr ] релиз /
-x64 /
-[ Bb ] в /
-[ Oo ] bj /
-# Папка build в настоящее время используется для скриптов сборки и не должна игнорироваться.
-# строить/
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+[Bb]in/
+[Oo]bj/
+# build folder is nowadays used for build scripts and should not be ignored
+#build/
 
-# Пакеты NuGet
-* .nupkg
-# Папку packages можно игнорировать из-за функции восстановления пакетов.
-** / пакеты / *
-# за исключением build/, который используется в качестве цели MSBuild.
-! ** / packages / build /
-# Раскомментируйте при необходимости, однако, как правило, комментарий будет сгенерирован заново при необходимости.
-# !**/packages/repositories.config
+# NuGet Packages
+*.nupkg
+# The packages folder can be ignored because of Package Restore
+**/packages/*
+# except build/, which is used as an MSBuild target.
+!**/packages/build/
+# Uncomment if necessary however generally it will be regenerated when needed
+#!**/packages/repositories.config
 
-# Результаты теста MSTest
-[ Tt ] est [ Rr ] esult * /
-[ Bb ] uild [ Ll ] og. *
+# MSTest test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
 
-* _IC
-* _п.с
-* .ilk
-* .meta
-* .obj
-* .pch
-* .pdb
-* .pgc
-* .pgd
-* .rsp
-* .sbr
-* .tlb
-* .tli
-* .tlh
-* .tmp
-* .tmp_proj
-* .бревно
-* .vspscc
-* .vssscc
+*_i.c
+*_p.c
+*.ilk
+*.meta
+*.obj
+*.pch
+*.pdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.tmp_proj
+*.log
+*.vspscc
+*.vssscc
 .builds
-* .pidb
-* .scc
+*.pidb
+*.scc
 
-# Файлы кэша Visual C++
-ипч /
-* .aps
-* .ncb
-* .opensdf
-* .sdf
-* .cachefile
+# Visual C++ cache files
+ipch/
+*.aps
+*.ncb
+*.opensdf
+*.sdf
+*.cachefile
 
-# Профайлер Visual Studio
-* .psess
-* .vsp
-* .vspx
+# Visual Studio profiler
+*.psess
+*.vsp
+*.vspx
 
-# Инструментарий автоматизации навигации
-* .gpState
+# Guidance Automation Toolkit
+*.gpState
 
-# ReSharper — это надстройка для программирования на .NET.
-_ReSharper * /
-* . [ Rr ] e [ Ss ] harper
+# ReSharper is a .NET coding add-in
+_ReSharper*/
+*.[Rr]e[Ss]harper
 
-# TeamCity — это надстройка для строительства
-_TeamCity *
+# TeamCity is a build add-in
+_TeamCity*
 
-# DotCover — это инструмент для анализа покрытия кода.
-* .dotCover
+# DotCover is a Code Coverage Tool
+*.dotCover
 
 # NCrunch
-* .ncrunch *
-. * crunch * .local.xml
+*.ncrunch*
+.*crunch*.local.xml
 
-# Папка вывода InstallShield
-[ Ee ] экспресс /
+# Installshield output folder
+[Ee]xpress/
 
-# DocProject — это надстройка для генерации документации.
-DocProject / buildhelp /
-DocProject / Help / * .HxT
-DocProject / Help / * .HxC
-DocProject / Help / * .hhc
-DocProject / Help / * .hhk
-DocProject / Help / * .hhp
-DocProject / Help / Html2
-DocProject / Help / html
+# DocProject is a documentation generator add-in
+DocProject/buildhelp/
+DocProject/Help/*.HxT
+DocProject/Help/*.HxC
+DocProject/Help/*.hhc
+DocProject/Help/*.hhk
+DocProject/Help/*.hhp
+DocProject/Help/Html2
+DocProject/Help/html
 
-# Каталог Click-Once
-опубликовать /
+# Click-Once directory
+publish/
 
-# Публикация веб-результата
-* .Publish.xml
+# Publish Web Output
+*.Publish.xml
 
-# Результаты сборки Windows Azure
+# Windows Azure Build Output
 csx
-* .build.csdef
+*.build.csdef
 
-# Каталог пакетов приложений Windows Store
-Пакеты приложений /
+# Windows Store app package directory
+AppPackages/
 
-# Другие
-* .Кэш
-ClientBin /
-[ Ss ] стиль [ Cc ] оп. *
-~$ *
-* ~
-* .dbmdl
-* . [ Pp ] ublish.xml
-* .pfx
-* .publishsettings
-modulesbin /
-tempbin /
+# Others
+*.Cache
+ClientBin/
+[Ss]tyle[Cc]op.*
+~$*
+*~
+*.dbmdl
+*.[Pp]ublish.xml
+*.pfx
+*.publishsettings
+modulesbin/
+tempbin/
 
-# Файл сайта EPiServer (VPP)
-AppData /
+# EPiServer Site file (VPP)
+AppData/
 
-# Проекты RIA/Silverlight
-Сгенерированный код /
+# RIA/Silverlight projects
+Generated_Code/
 
-# Резервное копирование и создание отчетов при преобразовании старого файла проекта в новый
-# Версия Visual Studio. Резервные копии файлов не требуются, так как у нас есть Git ;-)
-_UpgradeReport_Files /
-Резервная копия * /
-UpgradeLog * .XML
-UpgradeLog * .htm
+# Backup & report files from converting an old project file to a newer
+# Visual Studio version. Backup files are not needed, because we have git ;-)
+_UpgradeReport_Files/
+Backup*/
+UpgradeLog*.XML
+UpgradeLog*.htm
 
 # vim
-* .txt~
-* .swp
-* .swo
+*.txt~
+*.swp
+*.swo
 
-# Временные файлы при открытии LibreOffice в Ubuntu
-.~lock. *
+# Temp files when opening LibreOffice on ubuntu
+.~lock.*
  
 # svn
 .svn
 
-# CVS - Система контроля версий
-** / CVS /
+# CVS - Source Control
+**/CVS/
 
-# Остатки решения конфликтов в системе контроля версий
-* .orig
+# Remainings from resolving conflicts in Source Control
+*.orig
 
-# Файлы SQL Server
-** / App_Data / * .mdf
-** / App_Data / * .ldf
-** / App_Data / * .sdf
+# SQL Server files
+**/App_Data/*.mdf
+**/App_Data/*.ldf
+**/App_Data/*.sdf
 
 
-# Файлы, сгенерированные LightSwitch
-GeneratedArtifacts /
-_Pvt_Extensions /
+#LightSwitch generated files
+GeneratedArtifacts/
+_Pvt_Extensions/
 ModelManifest.xml
 
 # =========================
-# Остатки Windows
+# Windows detritus
 # =========================
 
-# Кэширование файлов изображений Windows
+# Windows image file caches
 Thumbs.db
 ehthumbs.db
 
-# Файл конфигурации папки
+# Folder config file
 Desktop.ini
 
-# Корзина используется для доступа к общим файлам
-$RECYCLE.BIN /
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
 
-# Файлы, сгенерированные операционной системой #
-Икона ?
+# OS generated files #
+Icon?
 
-# Файлы хранилища служб для настольных компьютеров Mac
+# Mac desktop service store files
 .DS_Store
 
-# Кэш компилятора SASS
+# SASS Compiler cache
 .sass-cache
 
 # Visual Studio 2014 CTP
-** / * .sln.ide
+**/*.sln.ide
 
 # Visual Studio temp something
-.против /
+.vs/
 
 # dotnet stuff
-проект.lock.json
+project.lock.json
 
 # VS 2015+
-* .vc.vc.opendb
-* .vc.db
+*.vc.vc.opendb
+*.vc.db
 
-# Райдер
-.idea /
+# Rider
+.idea/
 
 # Visual Studio Code
-.vscode /
+.vscode/
 
-# Выходная папка, используемая Webpack или другими компонентами фронтенда
-** / node_modules / *
-** / wwwroot / *
+# Output folder used by Webpack or other FE stuff
+**/node_modules/*
+**/wwwroot/*
 
-# Специфика SpecFlow
-* .feature.cs
-* .feature.xlsx. *
-* .Specs_ * .html
+# SpecFlow specific
+*.feature.cs
+*.feature.xlsx.*
+*.Specs_*.html
 
-# Проекты UWP
-Пакеты приложений /
+# UWP Projects
+AppPackages/
 
-# ####
-# Конец списка игнорируемых параметров ядра, ниже приведены ваши пользовательские настройки для каждого проекта (шаблоны или путь)
-# ####
+#####
+# End of core ignore list, below put you custom 'per project' settings (patterns or path)
+#####
