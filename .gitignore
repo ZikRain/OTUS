@@ -1,0 +1,226 @@
+# Следующая команда работает для загрузки при использовании Git для Windows:
+# curl -LOf http://gist.githubusercontent.com/kmorcinek/2710267/raw/.gitignore
+#
+# Загрузите этот файл с помощью PowerShell v3 в Windows, используя следующую команду:
+# Invoke-WebRequest https://gist.githubusercontent.com/kmorcinek/2710267/raw/ -OutFile .gitignore
+#
+# или wget:
+# wget --no-check-certificate http://gist.githubusercontent.com/kmorcinek/2710267/raw/.gitignore
+
+# Файлы, специфичные для пользователя
+* .suo
+* .пользователь
+* .sln.docstates
+
+# Результаты сборки
+[ Dd ] ebug /
+[ Rr ] релиз /
+x64 /
+[ Bb ] в /
+[ Oo ] bj /
+# Папка build в настоящее время используется для скриптов сборки и не должна игнорироваться.
+# строить/
+
+# Пакеты NuGet
+* .nupkg
+# Папку packages можно игнорировать из-за функции восстановления пакетов.
+** / пакеты / *
+# за исключением build/, который используется в качестве цели MSBuild.
+! ** / packages / build /
+# Раскомментируйте при необходимости, однако, как правило, комментарий будет сгенерирован заново при необходимости.
+# !**/packages/repositories.config
+
+# Результаты теста MSTest
+[ Tt ] est [ Rr ] esult * /
+[ Bb ] uild [ Ll ] og. *
+
+* _IC
+* _п.с
+* .ilk
+* .meta
+* .obj
+* .pch
+* .pdb
+* .pgc
+* .pgd
+* .rsp
+* .sbr
+* .tlb
+* .tli
+* .tlh
+* .tmp
+* .tmp_proj
+* .бревно
+* .vspscc
+* .vssscc
+.builds
+* .pidb
+* .scc
+
+# Файлы кэша Visual C++
+ипч /
+* .aps
+* .ncb
+* .opensdf
+* .sdf
+* .cachefile
+
+# Профайлер Visual Studio
+* .psess
+* .vsp
+* .vspx
+
+# Инструментарий автоматизации навигации
+* .gpState
+
+# ReSharper — это надстройка для программирования на .NET.
+_ReSharper * /
+* . [ Rr ] e [ Ss ] harper
+
+# TeamCity — это надстройка для строительства
+_TeamCity *
+
+# DotCover — это инструмент для анализа покрытия кода.
+* .dotCover
+
+# NCrunch
+* .ncrunch *
+. * crunch * .local.xml
+
+# Папка вывода InstallShield
+[ Ee ] экспресс /
+
+# DocProject — это надстройка для генерации документации.
+DocProject / buildhelp /
+DocProject / Help / * .HxT
+DocProject / Help / * .HxC
+DocProject / Help / * .hhc
+DocProject / Help / * .hhk
+DocProject / Help / * .hhp
+DocProject / Help / Html2
+DocProject / Help / html
+
+# Каталог Click-Once
+опубликовать /
+
+# Публикация веб-результата
+* .Publish.xml
+
+# Результаты сборки Windows Azure
+csx
+* .build.csdef
+
+# Каталог пакетов приложений Windows Store
+Пакеты приложений /
+
+# Другие
+* .Кэш
+ClientBin /
+[ Ss ] стиль [ Cc ] оп. *
+~$ *
+* ~
+* .dbmdl
+* . [ Pp ] ublish.xml
+* .pfx
+* .publishsettings
+modulesbin /
+tempbin /
+
+# Файл сайта EPiServer (VPP)
+AppData /
+
+# Проекты RIA/Silverlight
+Сгенерированный код /
+
+# Резервное копирование и создание отчетов при преобразовании старого файла проекта в новый
+# Версия Visual Studio. Резервные копии файлов не требуются, так как у нас есть Git ;-)
+_UpgradeReport_Files /
+Резервная копия * /
+UpgradeLog * .XML
+UpgradeLog * .htm
+
+# vim
+* .txt~
+* .swp
+* .swo
+
+# Временные файлы при открытии LibreOffice в Ubuntu
+.~lock. *
+ 
+# svn
+.svn
+
+# CVS - Система контроля версий
+** / CVS /
+
+# Остатки решения конфликтов в системе контроля версий
+* .orig
+
+# Файлы SQL Server
+** / App_Data / * .mdf
+** / App_Data / * .ldf
+** / App_Data / * .sdf
+
+
+# Файлы, сгенерированные LightSwitch
+GeneratedArtifacts /
+_Pvt_Extensions /
+ModelManifest.xml
+
+# =========================
+# Остатки Windows
+# =========================
+
+# Кэширование файлов изображений Windows
+Thumbs.db
+ehthumbs.db
+
+# Файл конфигурации папки
+Desktop.ini
+
+# Корзина используется для доступа к общим файлам
+$RECYCLE.BIN /
+
+# Файлы, сгенерированные операционной системой #
+Икона ?
+
+# Файлы хранилища служб для настольных компьютеров Mac
+.DS_Store
+
+# Кэш компилятора SASS
+.sass-cache
+
+# Visual Studio 2014 CTP
+** / * .sln.ide
+
+# Visual Studio temp something
+.против /
+
+# dotnet stuff
+проект.lock.json
+
+# VS 2015+
+* .vc.vc.opendb
+* .vc.db
+
+# Райдер
+.idea /
+
+# Visual Studio Code
+.vscode /
+
+# Выходная папка, используемая Webpack или другими компонентами фронтенда
+** / node_modules / *
+** / wwwroot / *
+
+# Специфика SpecFlow
+* .feature.cs
+* .feature.xlsx. *
+* .Specs_ * .html
+
+# Проекты UWP
+Пакеты приложений /
+
+# ####
+# Конец списка игнорируемых параметров ядра, ниже приведены ваши пользовательские настройки для каждого проекта (шаблоны или путь)
+# ####
