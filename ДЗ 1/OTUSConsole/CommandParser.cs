@@ -4,55 +4,76 @@ namespace OTUSConsole;
 
 public static class CommandParser
 {
-    public static void Parse(ReadOnlySpan<char> str, out ReadOnlySpan<char> command, out ReadOnlySpan<char> key, out ReadOnlySpan<char> value)
+    public static ParseCommand Parse(ReadOnlySpan<char> str)
     {
-        command = default;
-        key = default;
-        value = default;
+        if (str.IsWhiteSpace() || str.IsEmpty)
+            return new ParseCommand(ReadOnlySpan<char>.Empty, ReadOnlySpan<char>.Empty, ReadOnlySpan<char>.Empty);
 
-        var splits = str.Split(' ');
+        int start = 0;
+        while (start < str.Length && char.IsWhiteSpace(str[start]))
+            start++;
 
-        foreach(var range in splits)
+        if (start >= str.Length)
+            return new ParseCommand(ReadOnlySpan<char>.Empty, ReadOnlySpan<char>.Empty, ReadOnlySpan<char>.Empty);
+
+
+
+        int commandEnd = str[start..].IndexOf(' ');
+        ReadOnlySpan<char> command;
+        int currentPos;
+
+        if (commandEnd == -1)
         {
-            var valR = str[range.Start.Value..range.End.Value];
-
-            if (valR.IsEmpty || valR.IsWhiteSpace())
-                continue;
-
-            if (command.IsEmpty)
-                command = valR;
-            else if(key.IsEmpty)
-                key = valR;
-            else if(value.IsEmpty)
-                value = valR;
+            command = str[start..];
+            return new ParseCommand(command, ReadOnlySpan<char>.Empty, ReadOnlySpan<char>.Empty);
+        }
+        else
+        {
+            command = str.Slice(start, commandEnd);
+            currentPos = start + commandEnd;
         }
 
+        while (currentPos < str.Length && char.IsWhiteSpace(str[currentPos]))
+            currentPos++;
+
+        if (currentPos >= str.Length)
+            return new ParseCommand(command, ReadOnlySpan<char>.Empty, ReadOnlySpan<char>.Empty);
+
+        int keyEnd = str[currentPos..].IndexOf(' ');
+        ReadOnlySpan<char> key;
+
+        if (keyEnd == -1)
+        {
+            key = str[currentPos..];
+            return new ParseCommand(command, key, ReadOnlySpan<char>.Empty);
+        }
+        else
+        {
+            key = str.Slice(currentPos, keyEnd);
+            currentPos += keyEnd;
+        }
+
+        while (currentPos < str.Length && char.IsWhiteSpace(str[currentPos]))
+            currentPos++;
+
+        if (currentPos >= str.Length)
+            return new ParseCommand(command, key, ReadOnlySpan<char>.Empty);
+
+        int valueEnd = str[currentPos..].IndexOf(' ');
+        ReadOnlySpan<char> value;
+
+        if (valueEnd == -1)
+        {
+            value = str[currentPos..];
+        }
+        else
+        {
+            value = str.Slice(currentPos, valueEnd);
+        }
+
+        return new ParseCommand(command, key, value);
     }
 
-    public static void ParseAndPrint(ReadOnlySpan<char> str, out ReadOnlySpan<char> command, out ReadOnlySpan<char> key, out ReadOnlySpan<char> value)
-    {
-        Parse(str, out command, out key, out value);
-
-        PrintCommandsTableValue(command, key, value, str);
-    }
-
-    public static void PrintCommandsTableHeader()
-    {
-        Console.WriteLine("┌──────────────────────────────────────────────────┬──────────────────┬──────────────────┬──────────────────┐");
-        Console.WriteLine("│ StartSpan                                        │ Command          │ Key              │ Value            │");
-        Console.WriteLine("├──────────────────────────────────────────────────┼──────────────────┼──────────────────┼──────────────────┤");
-    }
-
-    public static void PrintCommandsTableValue(ReadOnlySpan<char> command, ReadOnlySpan<char> key, ReadOnlySpan<char> value, ReadOnlySpan<char> startStr =default)
-    {
-        Console.WriteLine($"│ {startStr,-48} │ {command,-16} │ {key,-16} │ {value,-16} │");
-
-    }
-
-    public static void PrintCommandsTableFooter()
-    {
-        Console.WriteLine("└──────────────────────────────────────────────────┴──────────────────┴──────────────────┴──────────────────┘");
-    }
     public static byte[] ToUtf8BytesOptimized(ReadOnlySpan<char> span)
     {
         if (span.IsEmpty)

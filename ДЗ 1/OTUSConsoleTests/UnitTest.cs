@@ -9,16 +9,16 @@ public class UnitTest
     {
         var str = "COMMAND KEY VALUE";
 
-        CommandParser.Parse(str, out var c, out var k, out var v);
+        var res = CommandParser.Parse(str);
 
-        Assert.False(c.IsEmpty);
-        Assert.Equal("COMMAND",c.ToString());
+        Assert.False(res.Command.IsEmpty);
+        Assert.Equal("COMMAND", res.Command.ToString());
 
-        Assert.False(k.IsEmpty);
-        Assert.Equal("KEY",k.ToString());
+        Assert.False(res.Key.IsEmpty);
+        Assert.Equal("KEY", res.Key.ToString());
 
-        Assert.False(v.IsEmpty);
-        Assert.Equal("VALUE",v.ToString());
+        Assert.False(res.Value.IsEmpty);
+        Assert.Equal("VALUE",res.Value.ToString());
     }
 
     [Fact]
@@ -26,15 +26,15 @@ public class UnitTest
     {
         var str = "COMMAND KEY";
 
-        CommandParser.Parse(str, out var c, out var k, out var v);
+        var res = CommandParser.Parse(str);
 
-        Assert.False(c.IsEmpty);
-        Assert.Equal("COMMAND", c.ToString());
+        Assert.False(res.Command.IsEmpty);
+        Assert.Equal("COMMAND", res.Command.ToString());
 
-        Assert.False(k.IsEmpty);
-        Assert.Equal("KEY", k.ToString());
+        Assert.False(res.Key.IsEmpty);
+        Assert.Equal("KEY", res.Key.ToString());
 
-        Assert.True(v.IsEmpty);
+        Assert.True(res.Value.IsEmpty);
     }
 
     [Fact]
@@ -42,27 +42,27 @@ public class UnitTest
     {
         var str = "COMMAND";
 
-        CommandParser.Parse(str, out var c, out var k, out var v);
+        var res = CommandParser.Parse(str);
 
-        Assert.False(c.IsEmpty);
-        Assert.Equal("COMMAND", c.ToString());
+        Assert.False(res.Command.IsEmpty);
+        Assert.Equal("COMMAND", res.Command.ToString());
 
-        Assert.True(k.IsEmpty);
+        Assert.True(res.Key.IsEmpty);
 
-        Assert.True(v.IsEmpty);
+        Assert.True(res.Value.IsEmpty);
 
         var str2 = "COMMAND KEY VALUE ERROR";
         
-        CommandParser.Parse(str2, out var c2, out var k2, out var v2);
+        var res2 = CommandParser.Parse(str2);
 
-        Assert.False(c2.IsEmpty);
-        Assert.Equal("COMMAND", c2.ToString());
+        Assert.False(res2.Command.IsEmpty);
+        Assert.Equal("COMMAND", res2.Command.ToString());
 
-        Assert.False(k2.IsEmpty);
-        Assert.Equal("KEY", k2.ToString());
+        Assert.False(res2.Key.IsEmpty);
+        Assert.Equal("KEY", res2.Key.ToString());
 
-        Assert.False(v2.IsEmpty);
-        Assert.Equal("VALUE", v2.ToString());
+        Assert.False(res2.Value.IsEmpty);
+        Assert.Equal("VALUE", res2.Value.ToString());
     }
 
     [Fact]
@@ -80,16 +80,16 @@ public class UnitTest
 
         foreach(var str in strs)
         {
-            CommandParser.Parse(str, out var c, out var k, out var v);
+            var res = CommandParser.Parse(str);
 
-            Assert.False(c.IsEmpty);
-            Assert.Equal("COMMAND", c.ToString());
+            Assert.False(res.Command.IsEmpty);
+            Assert.Equal("COMMAND", res.Command.ToString());
 
-            Assert.False(k.IsEmpty);
-            Assert.Equal("KEY", k.ToString());
+            Assert.False(res.Key.IsEmpty);
+            Assert.Equal("KEY", res.Key.ToString());
 
-            Assert.False(v.IsEmpty);
-            Assert.Equal("VALUE", v.ToString());
+            Assert.False(res.Value.IsEmpty);
+            Assert.Equal("VALUE", res.Value.ToString());
         }
     }
 }

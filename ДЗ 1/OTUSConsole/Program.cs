@@ -1,13 +1,7 @@
 ﻿using OTUSConsole;
-
-Console.WriteLine("┌──────────────────────────────────────────────────┐");
-Console.WriteLine("│ Домашнее задание 1. Работу выполнил Бугаев А. И. │");
-Console.WriteLine("└──────────────────────────────────────────────────┘");
+using System.Diagnostics;
 
 var store = new SimpleStore();
-store.PrintDictionary();
-
-CommandParser.PrintCommandsTableHeader();
 
 var strs = new string[] { 
     "COMMAND",
@@ -36,12 +30,6 @@ var strs = new string[] {
 
 foreach (var str in strs)
 {
-    CommandParser.ParseAndPrint(str, out var c, out var k, out var v);
-    store.TryApplyCommand(c, k, v);
+    var res = CommandParser.Parse(str);
+    store.TryApplyCommand(res);
 }
-
-CommandParser.PrintCommandsTableFooter();
-
-store.PrintDictionary();
-
-
