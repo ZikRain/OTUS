@@ -1,20 +1,20 @@
 ﻿using System.Text;
 
-namespace OTUSConsole;
+namespace Parser;
 
 public static class CommandParser
 {
-    public static ParseCommand Parse(ReadOnlySpan<char> str)
+    public static ParsedCommand Parse(ReadOnlySpan<char> str)
     {
         if (str.IsWhiteSpace() || str.IsEmpty)
-            return new ParseCommand(ReadOnlySpan<char>.Empty, ReadOnlySpan<char>.Empty, ReadOnlySpan<char>.Empty);
+            return ParsedCommand.GetEmpty();
 
         int start = 0;
         while (start < str.Length && char.IsWhiteSpace(str[start]))
             start++;
 
         if (start >= str.Length)
-            return new ParseCommand(ReadOnlySpan<char>.Empty, ReadOnlySpan<char>.Empty, ReadOnlySpan<char>.Empty);
+            return ParsedCommand.GetEmpty();
 
 
 
@@ -25,7 +25,7 @@ public static class CommandParser
         if (commandEnd == -1)
         {
             command = str[start..];
-            return new ParseCommand(command, ReadOnlySpan<char>.Empty, ReadOnlySpan<char>.Empty);
+            return new ParsedCommand(command, [], []);
         }
         else
         {
@@ -37,7 +37,7 @@ public static class CommandParser
             currentPos++;
 
         if (currentPos >= str.Length)
-            return new ParseCommand(command, ReadOnlySpan<char>.Empty, ReadOnlySpan<char>.Empty);
+            return new ParsedCommand(command, [], []);
 
         int keyEnd = str[currentPos..].IndexOf(' ');
         ReadOnlySpan<char> key;
@@ -45,7 +45,7 @@ public static class CommandParser
         if (keyEnd == -1)
         {
             key = str[currentPos..];
-            return new ParseCommand(command, key, ReadOnlySpan<char>.Empty);
+            return new ParsedCommand(command, key, []);
         }
         else
         {
@@ -57,7 +57,7 @@ public static class CommandParser
             currentPos++;
 
         if (currentPos >= str.Length)
-            return new ParseCommand(command, key, ReadOnlySpan<char>.Empty);
+            return new ParsedCommand(command, key, []);
 
         int valueEnd = str[currentPos..].IndexOf(' ');
         ReadOnlySpan<char> value;
@@ -71,7 +71,7 @@ public static class CommandParser
             value = str.Slice(currentPos, valueEnd);
         }
 
-        return new ParseCommand(command, key, value);
+        return new ParsedCommand(command, key, value);
     }
 
     public static byte[] ToUtf8BytesOptimized(ReadOnlySpan<char> span)

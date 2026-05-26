@@ -1,4 +1,7 @@
 <Solution>
-  <Project Path="../OTUSConsoleTests/OTUSConsoleTests.csproj" Id="18251013-0ed7-4c44-9a1a-0e9b49690711" />
+  <Folder Name="/xUnitTests/">
+    <Project Path="../ParserTest/ParserTest.csproj" Id="bc51ec0a-80d9-4dd7-8c22-5235b40e3c78" />
+  </Folder>
+  <Project Path="../Parser/Parser.csproj" Id="cd9d6e8c-ac10-475c-b052-b7b353da7fb3" />
   <Project Path="OTUSConsole.csproj" />
 </Solution>

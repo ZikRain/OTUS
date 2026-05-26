@@ -1,6 +1,5 @@
-﻿using System.Text;
+﻿namespace Parser;
 
-namespace OTUSConsole;
 public class SimpleStore
 {
     private readonly Dictionary<string, byte[]> _store = [];
@@ -23,10 +22,13 @@ public class SimpleStore
 
     public void Delete(string key)
     {
+        if (string.IsNullOrWhiteSpace(key))
+            return;
+
         _store.Remove(key);
     }
 
-    public (bool,byte[]?) TryApplyCommand(ParseCommand parsed)
+    public (bool, byte[]?) TryApplyCommand(ParsedCommand parsed)
     {
 
         switch (parsed.Command.ToString().ToLower())
@@ -36,7 +38,7 @@ public class SimpleStore
                     var val = Get(parsed.Key.ToString());
                     return (true, val);
                 }
-            
+
             case "set":
                 {
                     var val = CommandParser.ToUtf8BytesOptimized(parsed.Value);
