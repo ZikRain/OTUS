@@ -3,5 +3,6 @@
     <Project Path="../ParserTest/ParserTest.csproj" Id="bc51ec0a-80d9-4dd7-8c22-5235b40e3c78" />
   </Folder>
   <Project Path="../Parser/Parser.csproj" Id="cd9d6e8c-ac10-475c-b052-b7b353da7fb3" />
+  <Project Path="../TCPServer/TCPServer.csproj" Id="a85b8f93-9d2b-4826-9da8-40e85c67db94" />
   <Project Path="OTUSConsole.csproj" />
 </Solution>
