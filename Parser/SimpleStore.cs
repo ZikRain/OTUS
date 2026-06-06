@@ -1,7 +1,12 @@
 ﻿namespace Parser;
 
-public class SimpleStore
+public class SimpleStore : IDisposable
 {
+    private long _getCount;
+    private long _setCount;
+    private long _delCount;
+
+    private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
     private readonly Dictionary<string, byte[]> _store = [];
 
     public void Set(string key, byte[] value)
@@ -9,7 +14,19 @@ public class SimpleStore
         if (string.IsNullOrWhiteSpace(key))
             return;
 
-        _store[key] = value;
+        try
+        {
+            _lock.EnterWriteLock();
+
+            _store[key] = value;
+
+            Interlocked.Increment(ref _setCount);
+        }
+        finally 
+        {
+            _lock?.ExitWriteLock();
+        }
+
     }
 
     public byte[]? Get(string key)
@@ -17,7 +34,20 @@ public class SimpleStore
         if (string.IsNullOrWhiteSpace(key))
             return null;
 
-        return _store[key];
+        try
+        {
+            _lock.EnterReadLock();
+
+            if (!_store.ContainsKey(key))
+                return null;
+
+            Interlocked.Increment(ref _getCount);
+            return _store[key];
+        }
+        finally
+        {
+            _lock?.ExitReadLock();
+        }
     }
 
     public void Delete(string key)
@@ -25,8 +55,20 @@ public class SimpleStore
         if (string.IsNullOrWhiteSpace(key))
             return;
 
-        _store.Remove(key);
+        try
+        {
+            _lock.EnterWriteLock();
+            
+            if (_store.Remove(key))
+                Interlocked.Increment(ref _delCount);
+        }
+        finally
+        {
+            _lock?.ExitWriteLock();
+        }
     }
+
+    public (long getCount, long setCount, long delCount) GetStatistic() =>  (_getCount, _setCount, _delCount);
 
     public (bool, byte[]?) TryApplyCommand(ParsedCommand parsed)
     {
@@ -49,11 +91,15 @@ public class SimpleStore
             case "delete":
                 {
                     var k = parsed.Key.ToString();
-                    var val = Get(k);
                     Delete(k);
-                    return (true, val);
+                    return (true, null);
                 }
             default: return (false, null);
         }
+    }
+
+    public void Dispose()
+    {
+        _lock.Dispose();
     }
 }

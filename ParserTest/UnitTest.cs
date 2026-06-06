@@ -1,4 +1,6 @@
 ﻿using Parser;
+using System.Collections;
+using System.Text;
 
 namespace ParserTest;
 
@@ -91,5 +93,37 @@ public class UnitTest
             Assert.False(res.Value.IsEmpty);
             Assert.Equal("VALUE", res.Value.ToString());
         }
+    }
+
+    [Fact]
+    public async Task TestAsyncLockSimpleStore()
+    {
+        var tasks = new List<Task>();
+
+        var st = new SimpleStore();
+
+        var strs = new string[] {
+        "SET 1 1",
+        "GET 1",
+        "SET 2 2",
+        "GET 2",
+        "SET 3 3",
+        "GET 3",
+        "SET 4 4",
+        "GET 4",
+        "SET 5 5",
+        "GET 5",
+        };
+
+        foreach (var str in strs)
+        { 
+            await Task.Run(() =>
+            {
+                var res = CommandParser.Parse(str);
+                st.TryApplyCommand(res);
+            });
+        }
+
+        Assert.Equal((5, 5, 0), st.GetStatistic());
     }
 }
