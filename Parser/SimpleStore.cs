@@ -70,7 +70,7 @@ public class SimpleStore : IDisposable
 
     public (long getCount, long setCount, long delCount) GetStatistic() =>  (_getCount, _setCount, _delCount);
 
-    public (bool, byte[]?) TryApplyCommand(ParsedCommand parsed)
+    public (bool res, byte[]? val,string mes) TryApplyCommand(ParsedCommand parsed)
     {
 
         switch (parsed.Command.ToString().ToLower())
@@ -78,23 +78,23 @@ public class SimpleStore : IDisposable
             case "get":
                 {
                     var val = Get(parsed.Key.ToString());
-                    return (true, val);
+                    return (true, val, val is null ? "(nil)\r\n" : "OK\r\n");
                 }
 
             case "set":
                 {
                     var val = CommandParser.ToUtf8BytesOptimized(parsed.Value);
                     Set(parsed.Key.ToString(), val);
-                    return (true, val);
+                    return (true, null, "OK\r\n");
                 }
 
             case "delete":
                 {
                     var k = parsed.Key.ToString();
                     Delete(k);
-                    return (true, null);
+                    return (true, null, "OK\r\n");
                 }
-            default: return (false, null);
+            default: return (false, null, "-ERR Unknown command\r\n");
         }
     }
 

@@ -6,19 +6,10 @@ using System.Net.Sockets;
 
 namespace TCPServer;
 
-public class TcpServer
+public class TcpServer(Socket? socket = null, SimpleStore? store = null)
 {
-    private readonly Socket _socket;
-
-    public TcpServer()
-    {
-        _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-    }
-
-    public TcpServer(Socket socket)
-    {
-        _socket = socket;
-    }
+    private readonly Socket _socket = socket ?? new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+    private readonly SimpleStore _store = store ?? new SimpleStore();
 
     public async Task StartAsync(int port, int backlog = 100, IPAddress? address = null)
     {
@@ -82,8 +73,14 @@ public class TcpServer
                     try
                     {
                         var data = Encoding.UTF8.GetString(buffer, 0, received).AsSpan();
-                        var res = CommandParser.Parse(data);
-                        LogLocal(res.ToParsedString());
+                        var pars = CommandParser.Parse(data);
+                        LogLocal(pars.ToParsedString());
+
+
+                        var res = _store.TryApplyCommand(pars);
+                        LogLocal(res.mes);
+                        await clientSocket.SendAsync(res.val ?? Encoding.UTF8.GetBytes(res.mes));
+
                     }
                     catch (Exception ex)
                     {
