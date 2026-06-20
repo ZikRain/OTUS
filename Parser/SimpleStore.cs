@@ -2,6 +2,10 @@
 
 public class SimpleStore : IDisposable
 {
+    private const string ResOK = "OK\r\n";
+    private const string ResErr = "(nil)\r\n";
+    private const string ResUnk = "-ERR Unknown command\r\n";
+
     private long _getCount;
     private long _setCount;
     private long _delCount;
@@ -78,23 +82,23 @@ public class SimpleStore : IDisposable
             case "get":
                 {
                     var val = Get(parsed.Key.ToString());
-                    return (true, val, val is null ? "(nil)\r\n" : "OK\r\n");
+                    return (true, val, val is null ? ResErr : ResOK);
                 }
 
             case "set":
                 {
                     var val = CommandParser.ToUtf8BytesOptimized(parsed.Value);
                     Set(parsed.Key.ToString(), val);
-                    return (true, null, "OK\r\n");
+                    return (true, null, ResOK);
                 }
 
             case "delete":
                 {
                     var k = parsed.Key.ToString();
                     Delete(k);
-                    return (true, null, "OK\r\n");
+                    return (true, null, ResOK);
                 }
-            default: return (false, null, "-ERR Unknown command\r\n");
+            default: return (false, null, ResUnk);
         }
     }
 

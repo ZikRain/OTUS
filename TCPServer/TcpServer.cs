@@ -43,7 +43,7 @@ public class TcpServer(Socket? socket = null, SimpleStore? store = null)
         var pool = ArrayPool<byte>.Shared;
         var buffer = pool.Rent(4096);
 
-        LogLocal($"Открыл соединение");
+        Log($"Открыл соединение", clientSocket);
 
         try
         {
@@ -54,18 +54,18 @@ public class TcpServer(Socket? socket = null, SimpleStore? store = null)
                     int received;
                     try
                     {
-                        LogLocal($"Ждем данные");
+                        Log($"Ждем данные", clientSocket);
                         received = await clientSocket.ReceiveAsync(buffer.AsMemory(0, buffer.Length), SocketFlags.None);
                     }
                     catch
                     {
-                        LogLocal("Ошибка чтения — завершаем обработку клиента");
+                        Log("Ошибка чтения — завершаем обработку клиента", clientSocket);
                         break;
                     }
 
                     if (received == 0)
                     {
-                        LogLocal("Закрыл соединение");
+                        Log("Закрыл соединение", clientSocket);
                         break;
                     }
 
@@ -74,17 +74,17 @@ public class TcpServer(Socket? socket = null, SimpleStore? store = null)
                     {
                         var data = Encoding.UTF8.GetString(buffer, 0, received).AsSpan();
                         var pars = CommandParser.Parse(data);
-                        LogLocal(pars.ToParsedString());
+                        Log(pars.ToParsedString(), clientSocket);
 
 
                         var res = _store.TryApplyCommand(pars);
-                        LogLocal(res.mes);
+                        Log(res.mes, clientSocket);
                         await clientSocket.SendAsync(res.val ?? Encoding.UTF8.GetBytes(res.mes));
 
                     }
                     catch (Exception ex)
                     {
-                        LogLocal($"Error:Parse: {ex.Message}");
+                        Log($"Error:Parse: {ex.Message}", clientSocket);
                     }
                 }
             }
@@ -98,7 +98,7 @@ public class TcpServer(Socket? socket = null, SimpleStore? store = null)
                 } 
                 catch (Exception ex)
                 {
-                    LogLocal($"Error:Close: {ex.Message}");
+                    Log($"Error:Close: {ex.Message}",clientSocket);
                 }
             }
         }
@@ -106,13 +106,8 @@ public class TcpServer(Socket? socket = null, SimpleStore? store = null)
         {
             pool.Return(buffer);
         }
-
-        void LogLocal(string str)
-        {
-            Log(str, clientSocket);
-        }
-        
     }
+
     void Log(string str, Socket? socket = null)
     {
         var endPoint = socket == null ? _socket.LocalEndPoint : socket.RemoteEndPoint;
