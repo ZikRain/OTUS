@@ -1,12 +1,13 @@
-﻿using Parser;
+﻿using Common;
+using Parser;
 using System.Buffers;
-using System.Text;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 
 namespace TCPServer;
 
-public class TcpServer(Socket? socket = null, SimpleStore? store = null)
+public class TcpServer(Socket? socket = null, SimpleStore? store = null) : IDisposable
 {
     private readonly Socket _socket = socket ?? new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
     private readonly SimpleStore _store = store ?? new SimpleStore();
@@ -16,7 +17,6 @@ public class TcpServer(Socket? socket = null, SimpleStore? store = null)
         var ip = address ?? IPAddress.Loopback;
         _socket.Bind(new IPEndPoint(ip, port));
         _socket.Listen(backlog);
-
         Log($"Начинаем слушать {port}");
 
         while (true)
@@ -32,6 +32,9 @@ public class TcpServer(Socket? socket = null, SimpleStore? store = null)
                 Log($"Error:Server: {ex.Message}");
                 break;
             }
+
+            //Сообщение об успешном коннекте
+            await clientSocket.SendAsync(Encoding.UTF8.GetBytes(ServerResponse.ResOK));
 
             // Для каждого принятого клиента запускаем отдельную задачу на обработку
             _ = Task.Run(() => ProcessClientAsync(clientSocket));
@@ -114,4 +117,8 @@ public class TcpServer(Socket? socket = null, SimpleStore? store = null)
         Console.WriteLine($"[{endPoint}]:: {str}");
     }
 
+    public void Dispose()
+    {
+        _socket?.Dispose();
+    }
 }

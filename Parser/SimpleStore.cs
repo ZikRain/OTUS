@@ -1,11 +1,9 @@
-﻿namespace Parser;
+﻿using Common;
+
+namespace Parser;
 
 public class SimpleStore : IDisposable
 {
-    private const string ResOK = "OK\r\n";
-    private const string ResErr = "(nil)\r\n";
-    private const string ResUnk = "-ERR Unknown command\r\n";
-
     private long _getCount;
     private long _setCount;
     private long _delCount;
@@ -82,23 +80,23 @@ public class SimpleStore : IDisposable
             case "get":
                 {
                     var val = Get(parsed.Key.ToString());
-                    return (true, val, val is null ? ResErr : ResOK);
+                    return (true, val, val is null ? ServerResponse.ResErr : ServerResponse.ResOK);
                 }
 
             case "set":
                 {
                     var val = CommandParser.ToUtf8BytesOptimized(parsed.Value);
                     Set(parsed.Key.ToString(), val);
-                    return (true, null, ResOK);
+                    return (true, null, ServerResponse.ResOK);
                 }
 
             case "delete":
                 {
                     var k = parsed.Key.ToString();
                     Delete(k);
-                    return (true, null, ResOK);
+                    return (true, null, ServerResponse.ResOK);
                 }
-            default: return (false, null, ResUnk);
+            default: return (false, null, ServerResponse.ResUnk);
         }
     }
 

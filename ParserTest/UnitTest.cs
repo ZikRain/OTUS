@@ -1,6 +1,4 @@
 ﻿using Parser;
-using System.Collections;
-using System.Text;
 
 namespace ParserTest;
 
@@ -116,7 +114,7 @@ public class UnitTest
         };
 
         foreach (var str in strs)
-        { 
+        {
             await Task.Run(() =>
             {
                 var res = CommandParser.Parse(str);
