@@ -82,7 +82,8 @@ public class TcpServer(Socket? socket = null, SimpleStore? store = null) : IDisp
 
                         var res = _store.TryApplyCommand(pars);
                         Log(res.mes, clientSocket);
-                        await clientSocket.SendAsync(res.val ?? Encoding.UTF8.GetBytes(res.mes));
+
+                        await clientSocket.SendAsync(ParserHelper.ObjectToByteArray(res.val) ?? Encoding.UTF8.GetBytes(res.mes));
 
                     }
                     catch (Exception ex)
@@ -120,5 +121,6 @@ public class TcpServer(Socket? socket = null, SimpleStore? store = null) : IDisp
     public void Dispose()
     {
         _socket?.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

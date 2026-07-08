@@ -8,10 +8,10 @@ public class SimpleStore : IDisposable
     private long _setCount;
     private long _delCount;
 
-    private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
+    private readonly ReaderWriterLockSlim _lock = new();
     private readonly Dictionary<string, byte[]> _store = [];
 
-    public void Set(string key, byte[] value)
+    public void Set(string key, UserProfile value)
     {
         if (string.IsNullOrWhiteSpace(key))
             return;
@@ -20,7 +20,7 @@ public class SimpleStore : IDisposable
         {
             _lock.EnterWriteLock();
 
-            _store[key] = value;
+            _store[key] = ParserHelper.ObjectToByteArray(value);
 
             Interlocked.Increment(ref _setCount);
         }
@@ -31,7 +31,7 @@ public class SimpleStore : IDisposable
 
     }
 
-    public byte[]? Get(string key)
+    public UserProfile? Get(string key)
     {
         if (string.IsNullOrWhiteSpace(key))
             return null;
@@ -40,11 +40,11 @@ public class SimpleStore : IDisposable
         {
             _lock.EnterReadLock();
 
-            if (!_store.ContainsKey(key))
+            if (!_store.TryGetValue(key, out var value))
                 return null;
 
             Interlocked.Increment(ref _getCount);
-            return _store[key];
+            return ParserHelper.ByteArrayToObject<UserProfile>(value);
         }
         finally
         {
@@ -72,7 +72,7 @@ public class SimpleStore : IDisposable
 
     public (long getCount, long setCount, long delCount) GetStatistic() =>  (_getCount, _setCount, _delCount);
 
-    public (bool res, byte[]? val,string mes) TryApplyCommand(ParsedCommand parsed)
+    public (bool res, UserProfile? val,string mes) TryApplyCommand(ParsedCommand parsed)
     {
 
         switch (parsed.Command.ToString().ToLower())
@@ -86,7 +86,7 @@ public class SimpleStore : IDisposable
             case "set":
                 {
                     var val = CommandParser.ToUtf8BytesOptimized(parsed.Value);
-                    Set(parsed.Key.ToString(), val);
+                    Set(parsed.Key.ToString(), ParserHelper.ByteArrayToObject<UserProfile>(val));
                     return (true, null, ServerResponse.ResOK);
                 }
 
@@ -103,5 +103,6 @@ public class SimpleStore : IDisposable
     public void Dispose()
     {
         _lock.Dispose();
+        GC.SuppressFinalize(this);
     }
 }
