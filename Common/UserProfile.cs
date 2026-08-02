@@ -1,6 +1,7 @@
 ﻿namespace Common;
 
-public class UserProfile
+[GenerateBinarySerializer]
+public partial class UserProfile
 {
     public long Id { get; set; }
     public string UserName { get; set; }

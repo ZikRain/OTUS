@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Benchmarks/">
+    <Project Path="../BenchmarksSerializeDeserialize/BenchmarksSerializeDeserialize.csproj" Id="3628343b-b0c5-4bdc-a114-9ba035a0e1b5" />
+  </Folder>
   <Folder Name="/NBomberTest/">
     <Project Path="../NBomberTest/NBomberTest.csproj" Id="866fd4ae-a54f-47ad-a548-e3ee7dff0aea" />
   </Folder>
@@ -7,6 +10,7 @@
   </Folder>
   <Project Path="../Common/Common.csproj" Id="25162f64-59fb-47d2-bfac-b25d4de13ab4" />
   <Project Path="../Parser/Parser.csproj" Id="cd9d6e8c-ac10-475c-b052-b7b353da7fb3" />
+  <Project Path="../SourceGenerator/SourceGenerator.csproj" Id="d6c67251-c5a7-4412-bdfd-449b60510834" />
   <Project Path="../TCPServer/TCPServer.csproj" Id="a85b8f93-9d2b-4826-9da8-40e85c67db94" />
   <Project Path="OTUSConsole.csproj" />
 </Solution>
