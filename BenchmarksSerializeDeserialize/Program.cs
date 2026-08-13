@@ -409,8 +409,60 @@ internal class Program
             .AddDiagnoser(MemoryDiagnoser.Default);
     }
 
-    static void PrintSystemInfo(Summary summary)
+    static void PrintSystemInfo(Summary summary, StreamWriter writer = null)
     {
+        if(writer != null)
+        {
+            try
+            {
+                writer.WriteLine("\n" + new string('═', 110));
+                writer.WriteLine("                    РЕЗУЛЬТАТЫ БЕНЧМАРКА");
+                writer.WriteLine(new string('═', 110));
+
+                writer.WriteLine($"\n📊 Системная информация:");
+
+                // ОС
+                writer.WriteLine($"  • ОС: {RuntimeInformation.OSDescription}");
+
+                // Процессор
+                var processorName = Environment.GetEnvironmentVariable("PROCESSOR_IDENTIFIER");
+                if (!string.IsNullOrEmpty(processorName))
+                {
+                    writer.WriteLine($"  • Процессор: {processorName}");
+                }
+                else
+                {
+                    writer.WriteLine($"  • Процессор: {RuntimeInformation.ProcessArchitecture}");
+                }
+
+                // Ядра
+                writer.WriteLine($"  • Ядер: {Environment.ProcessorCount}");
+
+                // Архитектура
+                writer.WriteLine($"  • Архитектура: {RuntimeInformation.ProcessArchitecture}");
+
+                // .NET версия
+                writer.WriteLine($"  • .NET: {Environment.Version}");
+
+                // Runtime
+                writer.WriteLine($"  • Runtime: {RuntimeInformation.FrameworkDescription}");
+
+                // Дополнительная информация из BenchmarkDotNet
+                try
+                {
+                    writer.WriteLine($"  • BenchmarkDotNet: {summary.HostEnvironmentInfo.RuntimeVersion}");
+                }
+                catch { }
+            }
+            catch (Exception ex)
+            {
+                writer.WriteLine($"  ⚠️ Не удалось получить системную информацию: {ex.Message}");
+            }
+
+
+            return;
+        }
+
         try
         {
             Console.WriteLine("\n" + new string('═', 110));
@@ -602,105 +654,30 @@ internal class Program
         }
     }
 
-    static void PrintRecommendationsOnly(List<BenchmarkReport> reports)
+    static void PrintRecommendationsOnly(List<BenchmarkReport> reports,StreamWriter writer = null)
     {
         if (!reports.Any()) return;
 
-        Console.WriteLine("\n" + new string('─', 110));
-        Console.WriteLine("РЕКОМЕНДАЦИИ:");
-        Console.WriteLine(new string('─', 110));
-
-        long GetAllocatedBytes(BenchmarkReport report)
+        if (writer != null)
         {
-            if (report.Metrics.TryGetValue("BytesAllocatedPerOperation", out var metric))
-            {
-                return (long)metric.Value;
-            }
-            return 0;
+            writer.WriteLine("\n" + new string('─', 110));
+            writer.WriteLine("РЕКОМЕНДАЦИИ:");
+            writer.WriteLine(new string('─', 110));
+
+    
+
+            var bestMethod = reports.OrderBy(r => r.ResultStatistics.Mean)
+                .ThenBy(r => GetAllocatedBytes(r))
+                .First();
+
+            writer.WriteLine($"\n✅ Рекомендуемый метод: {bestMethod.BenchmarkCase.Descriptor.WorkloadMethod.Name}");
+            writer.WriteLine($"   • Время: {bestMethod.ResultStatistics.Mean:F4} ms");
+            writer.WriteLine($"   • Память: {GetAllocatedBytes(bestMethod):F0} B");
         }
-
-        var bestMethod = reports.OrderBy(r => r.ResultStatistics.Mean)
-            .ThenBy(r => GetAllocatedBytes(r))
-            .First();
-
-        Console.WriteLine($"\n✅ Рекомендуемый метод: {bestMethod.BenchmarkCase.Descriptor.WorkloadMethod.Name}");
-        Console.WriteLine($"   • Время: {bestMethod.ResultStatistics.Mean:F4} ms");
-        Console.WriteLine($"   • Память: {GetAllocatedBytes(bestMethod):F0} B");
-    }
-
-    static void PrintAnalysis(List<BenchmarkReport> reports)
-    {
-        if (!reports.Any()) return;
-
-        Console.WriteLine("\n" + new string('─', 110));
-        Console.WriteLine("АНАЛИЗ РЕЗУЛЬТАТОВ:");
-        Console.WriteLine(new string('─', 110));
-
-        long GetAllocatedBytes(BenchmarkReport report)
+        else
         {
-            if (report.Metrics.TryGetValue("BytesAllocatedPerOperation", out var metric))
-            {
-                return (long)metric.Value;
-            }
-            return 0;
-        }
 
-        var fastest = reports.First();
-        var slowest = reports.Last();
-        var leastMemory = reports.OrderBy(r => GetAllocatedBytes(r)).First();
-        var mostMemory = reports.OrderByDescending(r => GetAllocatedBytes(r)).First();
 
-        Console.WriteLine($"\n🏆 Самый быстрый: {fastest.BenchmarkCase.Descriptor.WorkloadMethod.Name}");
-        Console.WriteLine($"   Время: {fastest.ResultStatistics.Mean:F4} ms");
-        Console.WriteLine($"   Память: {GetAllocatedBytes(fastest):F0} B");
-
-        Console.WriteLine($"\n🐢 Самый медленный: {slowest.BenchmarkCase.Descriptor.WorkloadMethod.Name}");
-        Console.WriteLine($"   Время: {slowest.ResultStatistics.Mean:F4} ms");
-        Console.WriteLine($"   Память: {GetAllocatedBytes(slowest):F0} B");
-
-        Console.WriteLine($"\n💾 Минимум памяти: {leastMemory.BenchmarkCase.Descriptor.WorkloadMethod.Name}");
-        Console.WriteLine($"   Память: {GetAllocatedBytes(leastMemory):F0} B");
-
-        Console.WriteLine($"\n💸 Максимум памяти: {mostMemory.BenchmarkCase.Descriptor.WorkloadMethod.Name}");
-        Console.WriteLine($"   Память: {GetAllocatedBytes(mostMemory):F0} B");
-
-        // Сравнение JSON vs Binary
-        var jsonReports = reports.Where(r => r.BenchmarkCase.Descriptor.WorkloadMethod.Name.Contains("Json"));
-        var binaryReports = reports.Where(r => r.BenchmarkCase.Descriptor.WorkloadMethod.Name.Contains("Binary"));
-
-        if (jsonReports.Any() && binaryReports.Any())
-        {
-            Console.WriteLine("\n📈 Сравнение JSON vs Binary:");
-
-            foreach (var json in jsonReports)
-            {
-                var jsonName = json.BenchmarkCase.Descriptor.WorkloadMethod.Name;
-                var binaryName = jsonName.Replace("Json", "Binary");
-
-                var binary = binaryReports.FirstOrDefault(b =>
-                    b.BenchmarkCase.Descriptor.WorkloadMethod.Name == binaryName ||
-                    b.BenchmarkCase.Descriptor.WorkloadMethod.Name.Replace("Binary", "Json") == jsonName);
-
-                if (binary != null && json.ResultStatistics != null && binary.ResultStatistics != null)
-                {
-                    var speedup = binary.ResultStatistics.Mean / json.ResultStatistics.Mean;
-                    var jsonMemory = GetAllocatedBytes(json);
-                    var binaryMemory = GetAllocatedBytes(binary);
-                    var memoryRatio = jsonMemory > 0 && binaryMemory > 0 ? (double)jsonMemory / binaryMemory : 0;
-
-                    Console.WriteLine($"\n  📌 {jsonName}");
-                    Console.WriteLine($"     ⚡ Бинарная сериализация быстрее в {speedup:F2}x раз");
-                    if (memoryRatio > 0)
-                    {
-                        Console.WriteLine($"     💾 JSON использует в {memoryRatio:F2}x больше памяти");
-                    }
-                }
-            }
-        }
-
-        // Вывод рекомендаций (только если включены)
-        if (ShowRecommendations)
-        {
             Console.WriteLine("\n" + new string('─', 110));
             Console.WriteLine("РЕКОМЕНДАЦИИ:");
             Console.WriteLine(new string('─', 110));
@@ -709,17 +686,206 @@ internal class Program
                 .ThenBy(r => GetAllocatedBytes(r))
                 .First();
 
-            var worstMethod = reports.OrderByDescending(r => r.ResultStatistics.Mean)
-                .ThenByDescending(r => GetAllocatedBytes(r))
-                .First();
-
             Console.WriteLine($"\n✅ Рекомендуемый метод: {bestMethod.BenchmarkCase.Descriptor.WorkloadMethod.Name}");
             Console.WriteLine($"   • Время: {bestMethod.ResultStatistics.Mean:F4} ms");
             Console.WriteLine($"   • Память: {GetAllocatedBytes(bestMethod):F0} B");
+        }
 
-            Console.WriteLine($"\n⚠️ Наименее эффективный метод: {worstMethod.BenchmarkCase.Descriptor.WorkloadMethod.Name}");
-            Console.WriteLine($"   • Время: {worstMethod.ResultStatistics.Mean:F4} ms");
-            Console.WriteLine($"   • Память: {GetAllocatedBytes(worstMethod):F0} B");
+        long GetAllocatedBytes(BenchmarkReport report)
+        {
+            if (report.Metrics.TryGetValue("BytesAllocatedPerOperation", out var metric))
+            {
+                return (long)metric.Value;
+            }
+            return 0;
+        }
+    }
+
+    static void PrintAnalysis(List<BenchmarkReport> reports, StreamWriter writer = null)
+    {
+        if (!reports.Any()) return;
+
+        if (writer != null)
+        {
+            writer.WriteLine("\n" + new string('─', 110));
+            writer.WriteLine("АНАЛИЗ РЕЗУЛЬТАТОВ:");
+            writer.WriteLine(new string('─', 110));
+
+            var fastest = reports.First();
+            var slowest = reports.Last();
+            var leastMemory = reports.OrderBy(r => GetAllocatedBytes(r)).First();
+            var mostMemory = reports.OrderByDescending(r => GetAllocatedBytes(r)).First();
+
+            writer.WriteLine($"\n🏆 Самый быстрый: {fastest.BenchmarkCase.Descriptor.WorkloadMethod.Name}");
+            writer.WriteLine($"   Время: {fastest.ResultStatistics.Mean:F4} ms");
+            writer.WriteLine($"   Память: {GetAllocatedBytes(fastest):F0} B");
+
+            writer.WriteLine($"\n🐢 Самый медленный: {slowest.BenchmarkCase.Descriptor.WorkloadMethod.Name}");
+            writer.WriteLine($"   Время: {slowest.ResultStatistics.Mean:F4} ms");
+            writer.WriteLine($"   Память: {GetAllocatedBytes(slowest):F0} B");
+
+            writer.WriteLine($"\n💾 Минимум памяти: {leastMemory.BenchmarkCase.Descriptor.WorkloadMethod.Name}");
+            writer.WriteLine($"   Память: {GetAllocatedBytes(leastMemory):F0} B");
+
+            writer.WriteLine($"\n💸 Максимум памяти: {mostMemory.BenchmarkCase.Descriptor.WorkloadMethod.Name}");
+            writer.WriteLine($"   Память: {GetAllocatedBytes(mostMemory):F0} B");
+
+            // Сравнение JSON vs Binary
+            var jsonReports = reports.Where(r => r.BenchmarkCase.Descriptor.WorkloadMethod.Name.Contains("Json"));
+            var binaryReports = reports.Where(r => r.BenchmarkCase.Descriptor.WorkloadMethod.Name.Contains("Binary"));
+
+            if (jsonReports.Any() && binaryReports.Any())
+            {
+                writer.WriteLine("\n📈 Сравнение JSON vs Binary:");
+
+                foreach (var json in jsonReports)
+                {
+                    var jsonName = json.BenchmarkCase.Descriptor.WorkloadMethod.Name;
+                    var binaryName = jsonName.Replace("Json", "Binary");
+
+                    var binary = binaryReports.FirstOrDefault(b =>
+                        b.BenchmarkCase.Descriptor.WorkloadMethod.Name == binaryName ||
+                        b.BenchmarkCase.Descriptor.WorkloadMethod.Name.Replace("Binary", "Json") == jsonName);
+
+                    if (binary != null && json.ResultStatistics != null && binary.ResultStatistics != null)
+                    {
+                        var speedup = binary.ResultStatistics.Mean / json.ResultStatistics.Mean;
+                        var jsonMemory = GetAllocatedBytes(json);
+                        var binaryMemory = GetAllocatedBytes(binary);
+                        var memoryRatio = jsonMemory > 0 && binaryMemory > 0 ? (double)jsonMemory / binaryMemory : 0;
+
+                        writer.WriteLine($"\n  📌 {jsonName}");
+                        writer.WriteLine($"     ⚡ Бинарная сериализация быстрее в {speedup:F2}x раз");
+                        if (memoryRatio > 0)
+                        {
+                            writer.WriteLine($"     💾 JSON использует в {memoryRatio:F2}x больше памяти");
+                        }
+                    }
+                }
+            }
+
+            // Вывод рекомендаций (только если включены)
+            if (ShowRecommendations)
+            {
+                writer.WriteLine("\n" + new string('─', 110));
+                writer.WriteLine("РЕКОМЕНДАЦИИ:");
+                writer.WriteLine(new string('─', 110));
+
+                var bestMethod = reports.OrderBy(r => r.ResultStatistics.Mean)
+                    .ThenBy(r => GetAllocatedBytes(r))
+                    .First();
+
+                var worstMethod = reports.OrderByDescending(r => r.ResultStatistics.Mean)
+                    .ThenByDescending(r => GetAllocatedBytes(r))
+                    .First();
+
+                writer.WriteLine($"\n✅ Рекомендуемый метод: {bestMethod.BenchmarkCase.Descriptor.WorkloadMethod.Name}");
+                writer.WriteLine($"   • Время: {bestMethod.ResultStatistics.Mean:F4} ms");
+                writer.WriteLine($"   • Память: {GetAllocatedBytes(bestMethod):F0} B");
+
+                writer.WriteLine($"\n⚠️ Наименее эффективный метод: {worstMethod.BenchmarkCase.Descriptor.WorkloadMethod.Name}");
+                writer.WriteLine($"   • Время: {worstMethod.ResultStatistics.Mean:F4} ms");
+                writer.WriteLine($"   • Память: {GetAllocatedBytes(worstMethod):F0} B");
+            }
+
+
+            return;
+        }
+        else
+        {
+
+
+            Console.WriteLine("\n" + new string('─', 110));
+            Console.WriteLine("АНАЛИЗ РЕЗУЛЬТАТОВ:");
+            Console.WriteLine(new string('─', 110));
+
+            
+
+            var fastest = reports.First();
+            var slowest = reports.Last();
+            var leastMemory = reports.OrderBy(r => GetAllocatedBytes(r)).First();
+            var mostMemory = reports.OrderByDescending(r => GetAllocatedBytes(r)).First();
+
+            Console.WriteLine($"\n🏆 Самый быстрый: {fastest.BenchmarkCase.Descriptor.WorkloadMethod.Name}");
+            Console.WriteLine($"   Время: {fastest.ResultStatistics.Mean:F4} ms");
+            Console.WriteLine($"   Память: {GetAllocatedBytes(fastest):F0} B");
+
+            Console.WriteLine($"\n🐢 Самый медленный: {slowest.BenchmarkCase.Descriptor.WorkloadMethod.Name}");
+            Console.WriteLine($"   Время: {slowest.ResultStatistics.Mean:F4} ms");
+            Console.WriteLine($"   Память: {GetAllocatedBytes(slowest):F0} B");
+
+            Console.WriteLine($"\n💾 Минимум памяти: {leastMemory.BenchmarkCase.Descriptor.WorkloadMethod.Name}");
+            Console.WriteLine($"   Память: {GetAllocatedBytes(leastMemory):F0} B");
+
+            Console.WriteLine($"\n💸 Максимум памяти: {mostMemory.BenchmarkCase.Descriptor.WorkloadMethod.Name}");
+            Console.WriteLine($"   Память: {GetAllocatedBytes(mostMemory):F0} B");
+
+            // Сравнение JSON vs Binary
+            var jsonReports = reports.Where(r => r.BenchmarkCase.Descriptor.WorkloadMethod.Name.Contains("Json"));
+            var binaryReports = reports.Where(r => r.BenchmarkCase.Descriptor.WorkloadMethod.Name.Contains("Binary"));
+
+            if (jsonReports.Any() && binaryReports.Any())
+            {
+                Console.WriteLine("\n📈 Сравнение JSON vs Binary:");
+
+                foreach (var json in jsonReports)
+                {
+                    var jsonName = json.BenchmarkCase.Descriptor.WorkloadMethod.Name;
+                    var binaryName = jsonName.Replace("Json", "Binary");
+
+                    var binary = binaryReports.FirstOrDefault(b =>
+                        b.BenchmarkCase.Descriptor.WorkloadMethod.Name == binaryName ||
+                        b.BenchmarkCase.Descriptor.WorkloadMethod.Name.Replace("Binary", "Json") == jsonName);
+
+                    if (binary != null && json.ResultStatistics != null && binary.ResultStatistics != null)
+                    {
+                        var speedup = binary.ResultStatistics.Mean / json.ResultStatistics.Mean;
+                        var jsonMemory = GetAllocatedBytes(json);
+                        var binaryMemory = GetAllocatedBytes(binary);
+                        var memoryRatio = jsonMemory > 0 && binaryMemory > 0 ? (double)jsonMemory / binaryMemory : 0;
+
+                        Console.WriteLine($"\n  📌 {jsonName}");
+                        Console.WriteLine($"     ⚡ Бинарная сериализация быстрее в {speedup:F2}x раз");
+                        if (memoryRatio > 0)
+                        {
+                            Console.WriteLine($"     💾 JSON использует в {memoryRatio:F2}x больше памяти");
+                        }
+                    }
+                }
+            }
+
+            // Вывод рекомендаций (только если включены)
+            if (ShowRecommendations)
+            {
+                Console.WriteLine("\n" + new string('─', 110));
+                Console.WriteLine("РЕКОМЕНДАЦИИ:");
+                Console.WriteLine(new string('─', 110));
+
+                var bestMethod = reports.OrderBy(r => r.ResultStatistics.Mean)
+                    .ThenBy(r => GetAllocatedBytes(r))
+                    .First();
+
+                var worstMethod = reports.OrderByDescending(r => r.ResultStatistics.Mean)
+                    .ThenByDescending(r => GetAllocatedBytes(r))
+                    .First();
+
+                Console.WriteLine($"\n✅ Рекомендуемый метод: {bestMethod.BenchmarkCase.Descriptor.WorkloadMethod.Name}");
+                Console.WriteLine($"   • Время: {bestMethod.ResultStatistics.Mean:F4} ms");
+                Console.WriteLine($"   • Память: {GetAllocatedBytes(bestMethod):F0} B");
+
+                Console.WriteLine($"\n⚠️ Наименее эффективный метод: {worstMethod.BenchmarkCase.Descriptor.WorkloadMethod.Name}");
+                Console.WriteLine($"   • Время: {worstMethod.ResultStatistics.Mean:F4} ms");
+                Console.WriteLine($"   • Память: {GetAllocatedBytes(worstMethod):F0} B");
+            }
+        }
+
+        long GetAllocatedBytes(BenchmarkReport report)
+        {
+            if (report.Metrics.TryGetValue("BytesAllocatedPerOperation", out var metric))
+            {
+                return (long)metric.Value;
+            }
+            return 0;
         }
     }
 
@@ -808,13 +974,52 @@ internal class Program
             var fileName = $"benchmark_results_{timestamp}.csv";
 
             using var writer = new StreamWriter(fileName);
-            writer.WriteLine("Method,Mean (ms),Error (ms),StdDev (ms),Gen0,Allocated (B)");
+            if (summary == null || !summary.Reports.Any())
+            {
+                writer.WriteLine("❌ Нет данных для отображения");
+                return;
+            }
 
-            foreach (var report in summary.Reports.Where(r => r.ResultStatistics != null))
+            // Вывод системной информации (только если включено)
+            if (ShowSystemInfo)
+            {
+                PrintSystemInfo(summary,writer);
+            }
+            else if (ShowVerboseInfo)
+            {
+                // В полном режиме показываем только заголовок без системной информации
+                writer.WriteLine("\n" + new string('═', 110));
+                writer.WriteLine("                    РЕЗУЛЬТАТЫ БЕНЧМАРКА");
+                writer.WriteLine(new string('═', 110));
+            }
+
+            writer.WriteLine("\n" + new string('─', 110));
+            writer.WriteLine("РЕЗУЛЬТАТЫ ТЕСТОВ:");
+            writer.WriteLine(new string('─', 110));
+
+            // В минимальном режиме показываем только самые важные колонки
+            if (!ShowVerboseInfo && !ShowSystemInfo)
+            {
+                writer.WriteLine($"{"Метод",-50} {"Среднее",-15} {"Память",-15}");
+                writer.WriteLine(new string('─', 110));
+            }
+            else
+            {
+                writer.WriteLine($"{"Метод",-50} {"Среднее",-15} {"Ошибка",-15} {"StdDev",-15} {"Gen0",-12} {"Память",-12} {"⭐"}");
+                writer.WriteLine(new string('─', 110));
+            }
+
+            var reports = summary.Reports
+                .Where(r => r.ResultStatistics != null)
+                .OrderBy(r => r.ResultStatistics.Mean)
+                .ToList();
+
+            foreach (var report in reports)
             {
                 var methodName = report.BenchmarkCase.Descriptor.WorkloadMethod.Name;
                 var stats = report.ResultStatistics;
-                var gen0Collections = report.GcStats.Gen0Collections;
+                var gcStats = report.GcStats;
+                var gen0Collections = gcStats.Gen0Collections;
 
                 long bytesAllocated = 0;
                 if (report.Metrics.TryGetValue("BytesAllocatedPerOperation", out var metric))
@@ -822,8 +1027,60 @@ internal class Program
                     bytesAllocated = (long)metric.Value;
                 }
 
-                writer.WriteLine($"{methodName},{stats.Mean},{stats.StandardError},{stats.StandardDeviation},{gen0Collections},{bytesAllocated}");
+                // Исправленный способ проверки Baseline
+                bool isBaseline = false;
+                try
+                {
+                    // Пробуем получить Baseline из атрибута
+                    var method = report.BenchmarkCase.Descriptor.WorkloadMethod;
+                    var attr = method.GetCustomAttributes(false)
+                        .FirstOrDefault(a => a.GetType().Name == "BenchmarkAttribute");
+                    if (attr != null)
+                    {
+                        var baselineProp = attr.GetType().GetProperty("Baseline");
+                        if (baselineProp != null)
+                        {
+                            isBaseline = (bool)baselineProp.GetValue(attr);
+                        }
+                    }
+                }
+                catch { }
+
+                var baselineMarker = isBaseline ? "⭐" : " ";
+
+                if (!ShowVerboseInfo && !ShowSystemInfo)
+                {
+                    // Минимальный режим
+                    writer.WriteLine($"{methodName,-50} " +
+                        $"{stats.Mean,15:F4} ms " +
+                        $"{bytesAllocated,15:F0} B");
+                }
+                else
+                {
+                    // Полный или компактный режим
+                    writer.WriteLine($"{methodName,-50} " +
+                        $"{stats.Mean,15:F4} ms " +
+                        $"{stats.StandardError,15:F4} ms " +
+                        $"{stats.StandardDeviation,15:F4} ms " +
+                        $"{gen0Collections,12:F2} " +
+                        $"{bytesAllocated,12:F0} B " +
+                        $"{baselineMarker,2}");
+                }
             }
+
+            // Анализ и рекомендации (только если включены)
+            if (ShowAnalysis)
+            {
+                PrintAnalysis(reports,writer);
+            }
+            else if (ShowRecommendations)
+            {
+                // Если анализ выключен, но рекомендации включены - показываем только рекомендации
+                PrintRecommendationsOnly(reports,writer);
+            }
+
+
+
 
             Console.WriteLine($"\n📁 Результаты сохранены в файл: {fileName}");
         }
