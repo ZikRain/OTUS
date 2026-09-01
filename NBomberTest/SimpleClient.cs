@@ -53,11 +53,6 @@ public class SimpleClient(Socket? socket = null):IDisposable
 
     }
 
-    public static bool IsAllZeros(byte[] array)
-    {
-        return array.Any(b => b != 0);
-    }
-
     public void Dispose()
     {
         _socket?.Dispose();
